@@ -2,24 +2,29 @@ package com.hp1.friendmatchingapp.controller;
 
 import com.hp1.friendmatchingapp.dto.*;
 import com.hp1.friendmatchingapp.entity.UserEntity;
+import com.hp1.friendmatchingapp.enums.Gender;
+import com.hp1.friendmatchingapp.enums.Hobby;
 import com.hp1.friendmatchingapp.jwt.JwtUtil;
 import com.hp1.friendmatchingapp.repository.UserRepository;
 import com.hp1.friendmatchingapp.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/users")
     public List<UserEntity> findAll() {
@@ -40,13 +45,13 @@ public class UserController {
         String username = loginRequestDTO.getUsername();
 
         // 인증 성공 시 JWT 토큰 생성 및 반환
-        String token = JwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(username);
         response.setHeader("Authorization", "Bearer " + token);
         return new LoginResponseDto(token);
     }
 
     @PostMapping("/emails/verification-request")
-    public ResponseEntity sendMessage(@RequestBody EmailVerificationRequestDto requestDto) {
+    public ResponseEntity<String> sendMessage(@RequestBody EmailVerificationRequestDto requestDto) {
         userService.sendCodeToEmail(requestDto);
 
         return ResponseEntity.ok("이메일 전송 완료");
@@ -57,5 +62,18 @@ public class UserController {
         userService.verifiedCode(email, code);
 
         return ResponseEntity.ok("이메일 인증 완료");
+    }
+
+    @GetMapping("/matches/{userId}")
+    public ResponseEntity<Slice<UserMatchingResponseDto>> getMatchedUsersForScroll(
+            @PathVariable("userId") Long userId,
+            @RequestParam Set<Gender> gender,
+            @RequestParam Set<Hobby> hobbies,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "6") int pageSize) {
+        UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, pageNumber, pageSize);
+
+        Slice<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForScroll(userMatchingRequestDto);
+        return ResponseEntity.ok(matchedUsers);
     }
 }

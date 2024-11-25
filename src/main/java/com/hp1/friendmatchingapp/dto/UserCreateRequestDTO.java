@@ -1,6 +1,7 @@
 package com.hp1.friendmatchingapp.dto;
 
 import com.hp1.friendmatchingapp.enums.Gender;
+import com.hp1.friendmatchingapp.enums.Hobby;
 import lombok.*;
 
 import java.util.HashSet;
@@ -21,5 +22,5 @@ public class UserCreateRequestDTO {
     private String chatRoomUrl;
     private String email;
     @Builder.Default
-    private Set<String> hobbies = new HashSet<>();
+    private Set<Hobby> hobbies = new HashSet<>();
 }

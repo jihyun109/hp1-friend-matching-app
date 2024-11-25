@@ -15,4 +15,5 @@ public interface UserService {
     void sendCodeToEmail(EmailVerificationRequestDto requestDto);
     String createCode();
     void verifiedCode(String requestDto, String authCode);
+    Slice<UserMatchingResponseDto> getMatchedUsersForScroll(UserMatchingRequestDto userMatchingRequest);
 }

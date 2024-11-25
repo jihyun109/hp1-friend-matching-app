@@ -3,17 +3,21 @@ package com.hp1.friendmatchingapp.service;
 import com.hp1.friendmatchingapp.dto.*;
 import com.hp1.friendmatchingapp.entity.HobbyEntity;
 import com.hp1.friendmatchingapp.entity.UserEntity;
+import com.hp1.friendmatchingapp.enums.Gender;
+import com.hp1.friendmatchingapp.enums.Hobby;
 import com.hp1.friendmatchingapp.error.customExceptions.*;
 import com.hp1.friendmatchingapp.error.ErrorCode;
 import com.hp1.friendmatchingapp.repository.HobbyRepository;
 import com.hp1.friendmatchingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +60,8 @@ public class UserServiceImpl implements UserService {
 
         // 취미 set 생성
         Set<HobbyEntity> hobbies = new HashSet<>();
-        for (String hobbyName : userCreateRequest.getHobbies()) {
+        for (Hobby hobbyName : userCreateRequest.getHobbies()) {
+
             HobbyEntity hobby = hobbyRepository.findByHobbyName(hobbyName)
                     .orElseGet(() -> hobbyRepository.save(new HobbyEntity(hobbyName)));
             hobbies.add(hobby);
@@ -150,6 +155,35 @@ public class UserServiceImpl implements UserService {
             throw new InvalidEmailVerificationCodeException(
                     ErrorCode.INVALID_EMAIL_VERIFICATION_CODE.getMessage(), ErrorCode.INVALID_EMAIL_VERIFICATION_CODE);
         }
+    }
+
+//    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    @Override
+    public Slice<UserMatchingResponseDto> getMatchedUsersForScroll(UserMatchingRequestDto userMatchingRequestDto) {
+        Pageable pageable = PageRequest.of(userMatchingRequestDto.getPageNum(), userMatchingRequestDto.getPageSize());
+        Set<Gender> genders = userMatchingRequestDto.getGender();
+        Set<Hobby> hobbies = userMatchingRequestDto.getHobbies();
+        Long userId = userMatchingRequestDto.getUserId();
+        Slice<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, pageable);
+
+        List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
+        return new SliceImpl<>(userMatchingResponseDtos, pageable, matchedUsers.hasNext());
+    }
+
+    private List<UserMatchingResponseDto> mapToUserMatchingResponseDto(List<UserMatchingResponseDto> userEntity) {
+        return userEntity.stream()
+                .map(this::convertToUserMatchingResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    private UserMatchingResponseDto convertToUserMatchingResponseDto(UserMatchingResponseDto userEntity) {
+        return new UserMatchingResponseDto(
+                userEntity.getId(),
+                userEntity.getFirstname(),
+                userEntity.getAge(),
+                userEntity.getGender()
+        );
     }
 
     // List<UserEntity>를 List<UserScrollListResponseDTO> 로 변환

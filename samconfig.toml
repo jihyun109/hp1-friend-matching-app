@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "friendmatching"
+resolve_s3 = true
+s3_prefix = "friendmatching"
+region = "ap-northeast-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "DatabaseEndpoint=\"hp-db-identifier.c3e2gqi2ofdo.ap-northeast-2.rds.amazonaws.com\""
+image_repositories = []

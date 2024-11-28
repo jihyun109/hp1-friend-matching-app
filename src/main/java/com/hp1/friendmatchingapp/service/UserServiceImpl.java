@@ -11,13 +11,8 @@ import com.hp1.friendmatchingapp.repository.HobbyRepository;
 import com.hp1.friendmatchingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.tool.schema.internal.exec.GenerationTarget;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,15 +155,15 @@ public class UserServiceImpl implements UserService {
 //    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public Slice<UserMatchingResponseDto> getMatchedUsersForScroll(UserMatchingRequestDto userMatchingRequestDto) {
+    public Page<UserMatchingResponseDto> getMatchedUsersForScroll(UserMatchingRequestDto userMatchingRequestDto) {
         Pageable pageable = PageRequest.of(userMatchingRequestDto.getPageNum(), userMatchingRequestDto.getPageSize());
         Set<Gender> genders = userMatchingRequestDto.getGender();
         Set<Hobby> hobbies = userMatchingRequestDto.getHobbies();
         Long userId = userMatchingRequestDto.getUserId();
-        Slice<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, pageable);
+        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, pageable);
 
         List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
-        return new SliceImpl<>(userMatchingResponseDtos, pageable, matchedUsers.hasNext());
+        return new PageImpl<>(userMatchingResponseDtos, pageable, matchedUsers.getTotalElements());
     }
 
     private List<UserMatchingResponseDto> mapToUserMatchingResponseDto(List<UserMatchingResponseDto> userEntity) {

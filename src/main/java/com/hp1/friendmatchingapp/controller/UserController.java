@@ -10,7 +10,7 @@ import com.hp1.friendmatchingapp.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,15 +65,15 @@ public class UserController {
     }
 
     @GetMapping("/matches/{userId}")
-    public ResponseEntity<Slice<UserMatchingResponseDto>> getMatchedUsersForScroll(
+    public ResponseEntity<Page<UserMatchingResponseDto>> getMatchedUsersForScroll(
             @PathVariable("userId") Long userId,
             @RequestParam Set<Gender> gender,
             @RequestParam Set<Hobby> hobbies,
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "6") int pageSize) {
+            @RequestParam(defaultValue = "0") int pageNumber) {
+        int pageSize = 12;
         UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, pageNumber, pageSize);
 
-        Slice<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForScroll(userMatchingRequestDto);
+        Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForScroll(userMatchingRequestDto);
         return ResponseEntity.ok(matchedUsers);
     }
 }

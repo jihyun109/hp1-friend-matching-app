@@ -4,6 +4,7 @@ import com.hp1.friendmatchingapp.dto.UserMatchingResponseDto;
 import com.hp1.friendmatchingapp.entity.UserEntity;
 import com.hp1.friendmatchingapp.enums.Gender;
 import com.hp1.friendmatchingapp.enums.Hobby;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,5 +28,5 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "JOIN HobbyEntity h ON uh.hobbyId = h.id " +
             "WHERE u.gender IN :gender AND h.hobbyName IN :hobbies " +
             "AND u.id != :userId")
-    Slice<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf(Long userId, Set<Gender> gender, Set<Hobby> hobbies, Pageable pageable);
+    Page<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf(Long userId, Set<Gender> gender, Set<Hobby> hobbies, Pageable pageable);
 }

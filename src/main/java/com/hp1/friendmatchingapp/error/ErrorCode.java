@@ -18,7 +18,6 @@ public enum ErrorCode {
     EMAIL_CODE_TIMEOUT(410, "COMMON-ERR-410", "Email verification code expired"),
     EMAIL_VERIFICATION_REQUEST_NOT_FOUND(400, "COMMON-ERR-400","This email has not requested a verification code.");
 
-
     private int status;
     private String errorCode;
     private String message;

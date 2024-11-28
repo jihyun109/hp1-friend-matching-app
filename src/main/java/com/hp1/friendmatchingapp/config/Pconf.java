@@ -11,5 +11,4 @@ public class Pconf {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

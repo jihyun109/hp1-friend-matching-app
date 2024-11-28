@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
         // 나이 추출
         int age = calculateAge(birthDate);
+        int ageRange = (age / 10) * 10;
 
         // 취미 set 생성
         Set<HobbyEntity> hobbies = new HashSet<>();
@@ -70,6 +71,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(userCreateRequest.getFirstName())
                 .birthDate(birthDate)
                 .age(age)
+                .ageRange(ageRange)
                 .gender(userCreateRequest.getGender())
                 .chatRoomUrl(userCreateRequest.getChatRoomUrl())
                 .hobbies(hobbies)
@@ -155,12 +157,13 @@ public class UserServiceImpl implements UserService {
 //    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public Page<UserMatchingResponseDto> getMatchedUsersForScroll(UserMatchingRequestDto userMatchingRequestDto) {
+    public Page<UserMatchingResponseDto> getMatchedUsersForPage(UserMatchingRequestDto userMatchingRequestDto) {
         Pageable pageable = PageRequest.of(userMatchingRequestDto.getPageNum(), userMatchingRequestDto.getPageSize());
         Set<Gender> genders = userMatchingRequestDto.getGender();
         Set<Hobby> hobbies = userMatchingRequestDto.getHobbies();
+        Set<Integer> ageRanges = userMatchingRequestDto.getAgeRanges();
         Long userId = userMatchingRequestDto.getUserId();
-        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, pageable);
+        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies,ageRanges, pageable);
 
         List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
         return new PageImpl<>(userMatchingResponseDtos, pageable, matchedUsers.getTotalElements());
@@ -181,14 +184,12 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-    // List<UserEntity>를 List<UserScrollListResponseDTO> 로 변환
     private List<UserScrollListResponseDTO> mapToUserScrollListResponse(List<UserEntity> userEntity) {
         return userEntity.stream()
                 .map(this::convertToUserScrollListResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // Entity -> UserScrollListResponseDTO 변환
     private UserScrollListResponseDTO convertToUserScrollListResponseDTO(UserEntity userEntity) {
         return new UserScrollListResponseDTO(
                 userEntity.getId(),

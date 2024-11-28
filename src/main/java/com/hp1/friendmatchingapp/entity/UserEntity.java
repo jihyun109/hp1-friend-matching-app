@@ -26,6 +26,7 @@ public class UserEntity {
     private String firstName;   // 이름
     private LocalDate birthDate;
     private int age;
+    private int ageRange;
 
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
@@ -41,7 +42,4 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "hobby_id")
     )
     private Set<HobbyEntity> hobbies;
-
-//    @Enumerated(EnumType.STRING)
-//    private Authority authority;
 }

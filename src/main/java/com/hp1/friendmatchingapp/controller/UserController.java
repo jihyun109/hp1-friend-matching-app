@@ -69,11 +69,12 @@ public class UserController {
             @PathVariable("userId") Long userId,
             @RequestParam Set<Gender> gender,
             @RequestParam Set<Hobby> hobbies,
+            @RequestParam Set<Integer> ageRanges,
             @RequestParam(defaultValue = "0") int pageNumber) {
         int pageSize = 12;
-        UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, pageNumber, pageSize);
+        UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, ageRanges, pageNumber, pageSize);
 
-        Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForScroll(userMatchingRequestDto);
+        Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForPage(userMatchingRequestDto);
         return ResponseEntity.ok(matchedUsers);
     }
 }

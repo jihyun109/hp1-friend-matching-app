@@ -26,7 +26,8 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "FROM UserEntity u " +
             "JOIN UserHobbyEntity uh ON u.id = uh.userId " +
             "JOIN HobbyEntity h ON uh.hobbyId = h.id " +
-            "WHERE u.gender IN :gender AND h.hobbyName IN :hobbies " +
+            "WHERE u.gender IN :gender AND h.hobbyName IN :hobbies AND u.ageRange IN :ageRanges " +
             "AND u.id != :userId")
-    Page<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf(Long userId, Set<Gender> gender, Set<Hobby> hobbies, Pageable pageable);
+    Page<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf
+            (Long userId, Set<Gender> gender, Set<Hobby> hobbies, Set<Integer> ageRanges, Pageable pageable);
 }

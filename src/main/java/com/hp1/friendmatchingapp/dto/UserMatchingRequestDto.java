@@ -15,6 +15,7 @@ public class UserMatchingRequestDto {
     private Long userId;
     private Set<Gender> gender;
     private Set<Hobby> hobbies;
+    private Set<Integer> ageRanges;
     private int pageNum;
     private int pageSize;
 }

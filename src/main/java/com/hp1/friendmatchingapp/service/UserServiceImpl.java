@@ -90,15 +90,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity authenticateUser(LoginRequestDTO loginRequestDTO) {
+    public Long authenticateUser(LoginRequestDTO loginRequestDTO) {
         Optional<UserEntity> optionalUserEntity = userRepository.findUserEntityByUsername(loginRequestDTO.getUsername());
 
         if (optionalUserEntity.isPresent()) {
             UserEntity userEntity = optionalUserEntity.get();
+            Long userId = userEntity.getId();
             String password = userEntity.getPassword();
 
             if (passwordEncoder.matches(loginRequestDTO.getPassword(), userEntity.getPassword())) {
-                return userEntity; // 인증 성공 시 사용자 반환
+                return userId; // 인증 성공 시 사용자 id 반환
             } else {
                 throw new InvalidPasswordException("Invalid password", ErrorCode.INVALID_PASSWORD);
             }
@@ -171,6 +172,11 @@ public class UserServiceImpl implements UserService {
 
         List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
         return new PageImpl<>(userMatchingResponseDtos, pageable, matchedUsers.getTotalElements());
+    }
+
+    @Override
+    public void updateProfileImage(Long userId, String imageUrl) {
+        userRepository.updateUserProfileImageById(userId, imageUrl);
     }
 
     private List<UserMatchingResponseDto> mapToUserMatchingResponseDto(List<UserMatchingResponseDto> userEntity) {

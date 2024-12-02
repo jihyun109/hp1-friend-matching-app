@@ -40,12 +40,12 @@ public class UserController {
     @PostMapping("/login")
     public LoginResponseDto login (@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
         // 사용자 인증
-        UserEntity user = userService.authenticateUser(loginRequestDTO);
+        Long userId = userService.authenticateUser(loginRequestDTO);
 
         String username = loginRequestDTO.getUsername();
 
         // 인증 성공 시 JWT 토큰 생성 및 반환
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(username, userId);
         response.setHeader("Authorization", "Bearer " + token);
         return new LoginResponseDto(token);
     }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +31,7 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     Page<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf
             (Long userId, Set<Gender> gender, Set<Hobby> hobbies, Set<Integer> ageRanges, Pageable pageable);
 
+    @Modifying
     @Query("UPDATE UserEntity u SET u.profileImageUrl = :profileImageUrl WHERE u.id = :userId")
     void updateUserProfileImageById(Long userId, String profileImageUrl);
 }

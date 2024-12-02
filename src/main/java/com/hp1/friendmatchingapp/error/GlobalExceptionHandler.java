@@ -111,6 +111,30 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmptyFileException.class)
+    public ResponseEntity<ErrorResponse> handleEmptyFileException(EmptyFileException ex) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.EMPTY_FILE);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingFileExtensionException.class)
+    public ResponseEntity<ErrorResponse> handleMissingFileExtensionExceiption(MissingFileExtensionException ex) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.EMPTY_FILE);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidFileExtension.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFileExtension(InvalidFileExtension ex) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.INVALID_FILE_EXTENSION);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IOExceiptionOnImageUploadException.class)
+    public ResponseEntity<ErrorResponse> handleIOExceiptionOnImageUploadException(IOExceiptionOnImageUploadException ex) {
+        ErrorResponse response = new ErrorResponse(ErrorCode.IO_EXCEPTION_ON_IMAGE_UPLOAD);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         log.warn("handleException", ex);

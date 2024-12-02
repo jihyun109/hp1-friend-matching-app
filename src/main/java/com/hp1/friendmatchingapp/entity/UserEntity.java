@@ -2,10 +2,8 @@ package com.hp1.friendmatchingapp.entity;
 
 import com.hp1.friendmatchingapp.enums.Gender;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -23,16 +21,23 @@ public class UserEntity {
     private Long id;
     private String username;
     private String password;
+    @NotNull
     private String firstName;   // 이름
+    @NotNull
     private LocalDate birthDate;
+    @NotNull
     private int age;
     private int ageRange;
+
+    @NotNull
     private String profileImageUrl;
 
+    @NotNull
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @NotNull
     private String chatRoomUrl;
     private String email;
 

@@ -1,5 +1,6 @@
 package com.hp1.friendmatchingapp.repository;
 
+import com.hp1.friendmatchingapp.dto.UserInfoResponseDTO;
 import com.hp1.friendmatchingapp.dto.UserMatchingResponseDto;
 import com.hp1.friendmatchingapp.entity.UserEntity;
 import com.hp1.friendmatchingapp.enums.Gender;
@@ -34,4 +35,11 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     @Modifying
     @Query("UPDATE UserEntity u SET u.profileImageUrl = :profileImageUrl WHERE u.id = :userId")
     void updateUserProfileImageById(Long userId, String profileImageUrl);
+
+    @Query("SELECT new com.hp1.friendmatchingapp.dto.UserInfoResponseDTO(u.profileImageUrl, u.firstName, u.birthDate, u.gender, u.chatRoomUrl)" +
+            "FROM UserEntity u " +
+            "WHERE u.id = :userId")
+    UserInfoResponseDTO getUserInfoById(Long userId);
+
+
 }

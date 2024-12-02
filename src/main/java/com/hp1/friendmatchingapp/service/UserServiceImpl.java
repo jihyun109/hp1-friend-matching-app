@@ -8,6 +8,7 @@ import com.hp1.friendmatchingapp.enums.Hobby;
 import com.hp1.friendmatchingapp.error.customExceptions.*;
 import com.hp1.friendmatchingapp.error.ErrorCode;
 import com.hp1.friendmatchingapp.repository.HobbyRepository;
+import com.hp1.friendmatchingapp.repository.UserHobbyRepository;
 import com.hp1.friendmatchingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HobbyRepository hobbyRepository;
+    private final UserHobbyRepository userHobbyRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final RedisService redisService;
@@ -177,6 +179,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateProfileImage(Long userId, String imageUrl) {
         userRepository.updateUserProfileImageById(userId, imageUrl);
+    }
+
+    @Override
+    public UserInfoHobbiesResponseDTO getUserInfoHobbies(Long userId) {
+        UserInfoResponseDTO userInfoResponse;
+        try  {
+            userInfoResponse = userRepository.getUserInfoById(userId);
+        } catch (UserNotFoundException exception) {
+            throw new UserNotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
+        }
+
+        Optional<List<Hobby>> userHobbies = userHobbyRepository.findHobbiesByUserId(userId);
+
+        return new UserInfoHobbiesResponseDTO(
+                userInfoResponse.getProfileImageUrl(),
+                userInfoResponse.getFirstName(),
+                userInfoResponse.getBirthDate(),
+                userInfoResponse.getGender(),
+                userInfoResponse.getChatRoomUrl(),
+                userHobbies);
     }
 
     private List<UserMatchingResponseDto> mapToUserMatchingResponseDto(List<UserMatchingResponseDto> userEntity) {

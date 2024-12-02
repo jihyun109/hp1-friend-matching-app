@@ -16,4 +16,5 @@ public interface UserService {
     void verifiedCode(String requestDto, String authCode);
     Page<UserMatchingResponseDto> getMatchedUsersForPage(UserMatchingRequestDto userMatchingRequest);
     void updateProfileImage(Long userId, String imageUrl);
+    UserInfoHobbiesResponseDTO getUserInfoHobbies(Long userId);
 }

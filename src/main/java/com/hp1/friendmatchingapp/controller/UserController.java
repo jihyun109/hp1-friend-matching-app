@@ -77,4 +77,15 @@ public class UserController {
         Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForPage(userMatchingRequestDto);
         return ResponseEntity.ok(matchedUsers);
     }
+
+    @GetMapping("users/{userId}")
+    public ResponseEntity<UserInfoHobbiesResponseDTO> getUserInfoById(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(userService.getUserInfoHobbies(userId));
+    }
+
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<String> updateUserInfo(@PathVariable("userId") Long userId) {
+
+        return ResponseEntity.ok("유저 정보 수정 완료");
+    }
 }

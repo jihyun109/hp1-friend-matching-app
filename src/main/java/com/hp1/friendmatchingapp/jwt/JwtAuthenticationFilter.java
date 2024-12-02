@@ -3,7 +3,6 @@ package com.hp1.friendmatchingapp.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -81,6 +80,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // /login 요청에는 트리거되지 않도록 설정
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().equals("/login")|| request.getServletPath().equals("/signup") || request.getServletPath().equals("/users/paged") ;
+        return request.getServletPath().equals("/login")|| request.getServletPath().equals("/signup") || request.getServletPath().equals("/image") ;
     }
 }

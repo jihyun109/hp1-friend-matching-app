@@ -13,4 +13,5 @@ public class UserMatchingResponseDto {
     private String firstname;
     private int age;
     private Gender gender;
+    private String profileImageUrl;
 }

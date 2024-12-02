@@ -38,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
+    @Value("${cloud.aws.default-profile-image-url}")
+    private String defaultProfileImageUrl;
+
     private static final String AUTH_CODE_PREFIX = "AuthCode ";
 
     @Override
@@ -70,6 +73,7 @@ public class UserServiceImpl implements UserService {
                 .chatRoomUrl(userCreateRequest.getChatRoomUrl())
                 .firstName(userCreateRequest.getFirstName())
                 .birthDate(birthDate)
+                .profileImageUrl(defaultProfileImageUrl)
                 .age(age)
                 .ageRange(ageRange)
                 .gender(userCreateRequest.getGender())
@@ -180,7 +184,8 @@ public class UserServiceImpl implements UserService {
                 userEntity.getId(),
                 userEntity.getFirstname(),
                 userEntity.getAge(),
-                userEntity.getGender()
+                userEntity.getGender(),
+                userEntity.getProfileImageUrl()
         );
     }
 

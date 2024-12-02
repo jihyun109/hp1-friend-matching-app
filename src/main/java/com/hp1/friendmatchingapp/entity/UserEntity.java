@@ -27,6 +27,7 @@ public class UserEntity {
     private LocalDate birthDate;
     private int age;
     private int ageRange;
+    private String profileImageUrl;
 
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)

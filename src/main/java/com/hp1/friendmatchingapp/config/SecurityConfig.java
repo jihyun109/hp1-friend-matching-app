@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
@@ -21,7 +23,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/signup", "/emails/**", "/image").permitAll()  // /login, /signup 경로는 인증 없이 접근 가능
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);  // 그 외 모든 요청은 인증된 사용자만 접근 가능
+                .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+                .cors(withDefaults());  // 그 외 모든 요청은 인증된 사용자만 접근 가능
 
         return http.build();  // 필터 체인 빌드
     }

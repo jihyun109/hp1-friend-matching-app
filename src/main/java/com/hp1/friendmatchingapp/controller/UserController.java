@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -70,13 +72,16 @@ public class UserController {
 
     @GetMapping("/matches/{userId}")
     public ResponseEntity<Page<UserMatchingResponseDto>> getMatchedUsersForScroll(
-            @PathVariable("userId") Long userId,
             @RequestParam Set<Gender> gender,
             @RequestParam Set<Hobby> hobbies,
             @RequestParam Set<Integer> ageRanges,
             @RequestParam(defaultValue = "0") int pageNumber) {
+        // SecurityContextHolder에서 인증 객체를 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String userName = authentication.getName();
         int pageSize = 6;
-        UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, ageRanges, pageNumber, pageSize);
+        UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userName, gender, hobbies, ageRanges, pageNumber, pageSize);
 
         Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForPage(userMatchingRequestDto);
         return ResponseEntity.ok(matchedUsers);

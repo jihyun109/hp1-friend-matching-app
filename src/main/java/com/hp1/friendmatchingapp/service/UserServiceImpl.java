@@ -172,8 +172,8 @@ public class UserServiceImpl implements UserService {
         Set<Gender> genders = userMatchingRequestDto.getGender();
         Set<Hobby> hobbies = userMatchingRequestDto.getHobbies();
         Set<Integer> ageRanges = userMatchingRequestDto.getAgeRanges();
-        Long userId = userMatchingRequestDto.getUserId();
-        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, ageRanges, pageable);
+        String username = userMatchingRequestDto.getUsername();
+        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(username, genders, hobbies, ageRanges, pageable);
 
         List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
         return new PageImpl<>(userMatchingResponseDtos, pageable, matchedUsers.getTotalElements());
@@ -233,19 +233,8 @@ public class UserServiceImpl implements UserService {
         int age = calculateAge(birthDate);
         int ageRange = (age / 10) * 10;
 
-//        userEntity.setFirstName(userUpdateRequestDTO.getFirstName());
-//        userEntity.setBirthDate(birthDate);
-//        userEntity.setAge(age);
-//        userEntity.setAgeRange(ageRange);
-//        userEntity.setGender(userUpdateRequestDTO.getGender());
-//        userEntity.setChatRoomUrl(userUpdateRequestDTO.getChatRoomUrl());
-//        userEntity.setHobbies(hobbies);
-
         userEntity.updateUser(userUpdateRequestDTO.getFirstName(), birthDate, age, ageRange, userUpdateRequestDTO.getGender(), userUpdateRequestDTO.getChatRoomUrl());
         System.out.println(userRepository.findUserEntityById(userId).toString());
-
-//        updateUserEntity = new UserEntity(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword(), userUpdateRequestDTO.getFirstName(),
-//                birthDate, age, ageRange, userEntity.getProfileImageUrl(), userUpdateRequestDTO.getGender(), userUpdateRequestDTO.getChatRoomUrl(), userEntity.getEmail(), hobbies);
 
         userRepository.save(userEntity);
         return userEntity.getId();

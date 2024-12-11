@@ -29,9 +29,9 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "JOIN UserHobbyEntity uh ON u.id = uh.userId " +
             "JOIN HobbyEntity h ON uh.hobbyId = h.id " +
             "WHERE u.gender IN :gender AND h.hobbyName IN :hobbies AND u.ageRange IN :ageRanges " +
-            "AND u.id != :userId")
+            "AND u.username != :username")
     Page<UserMatchingResponseDto> findUserEntitiesByByGenderAAndHobbiesExcludingSelf
-            (Long userId, Set<Gender> gender, Set<Hobby> hobbies, Set<Integer> ageRanges, Pageable pageable);
+            (String username, Set<Gender> gender, Set<Hobby> hobbies, Set<Integer> ageRanges, Pageable pageable);
 
     @Modifying
     @Query("UPDATE UserEntity u SET u.profileImageUrl = :profileImageUrl WHERE u.id = :userId")

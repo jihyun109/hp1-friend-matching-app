@@ -12,7 +12,7 @@ import java.util.Set;
 @Builder
 @Getter
 public class UserMatchingRequestDto {
-    private Long userId;
+    private String username;
     private Set<Gender> gender;
     private Set<Hobby> hobbies;
     private Set<Integer> ageRanges;

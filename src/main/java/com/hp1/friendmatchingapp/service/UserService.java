@@ -3,6 +3,7 @@ package com.hp1.friendmatchingapp.service;
 import com.hp1.friendmatchingapp.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
     void addUser(UserCreateRequestDTO userCreateRequest);
@@ -17,4 +18,5 @@ public interface UserService {
     Page<UserMatchingResponseDto> getMatchedUsersForPage(UserMatchingRequestDto userMatchingRequest);
     void updateProfileImage(Long userId, String imageUrl);
     UserInfoHobbiesResponseDTO getUserInfoHobbies(Long userId);
+    Long updateUser(Long userId, UserUpdateRequestDTO userUpdateRequestDTO, MultipartFile image);
 }

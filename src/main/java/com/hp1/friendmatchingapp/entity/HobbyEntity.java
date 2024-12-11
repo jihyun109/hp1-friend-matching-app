@@ -2,10 +2,12 @@ package com.hp1.friendmatchingapp.entity;
 
 import com.hp1.friendmatchingapp.enums.Hobby;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "hobbies")
+@Getter
 @RequiredArgsConstructor
 public class HobbyEntity {
     @Id

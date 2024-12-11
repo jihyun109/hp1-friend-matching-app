@@ -15,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,4 +49,32 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "hobby_id")
     )
     private Set<HobbyEntity> hobbies;
+
+    public void updateUser(String firstName, LocalDate birthDate, int age, int ageRange, Gender gender, String ChatRoomUrl) {
+        this.firstName = firstName;
+        this.birthDate = birthDate;
+        this.age = age;
+        this.ageRange = ageRange;
+        this.gender = gender;
+        this.chatRoomUrl = ChatRoomUrl;
+//        this.hobbies = hobbies;
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", birthDate=" + birthDate +
+                ", age=" + age +
+                ", ageRange=" + ageRange +
+                ", profileImageUrl='" + profileImageUrl + '\'' +
+                ", gender=" + gender +
+                ", chatRoomUrl='" + chatRoomUrl + '\'' +
+                ", email='" + email + '\'' +
+                ", hobbies=" + hobbies +
+                '}';
+    }
 }

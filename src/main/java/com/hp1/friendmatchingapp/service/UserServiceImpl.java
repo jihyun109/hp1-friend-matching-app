@@ -3,6 +3,7 @@ package com.hp1.friendmatchingapp.service;
 import com.hp1.friendmatchingapp.dto.*;
 import com.hp1.friendmatchingapp.entity.HobbyEntity;
 import com.hp1.friendmatchingapp.entity.UserEntity;
+import com.hp1.friendmatchingapp.entity.UserHobbyEntity;
 import com.hp1.friendmatchingapp.enums.Gender;
 import com.hp1.friendmatchingapp.enums.Hobby;
 import com.hp1.friendmatchingapp.error.customExceptions.*;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final RedisService redisService;
+    private final ProfileImageService profileImageService;
 
     @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
@@ -161,7 +164,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-//    @PreAuthorize("isAuthenticated()")
+    //    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
     public Page<UserMatchingResponseDto> getMatchedUsersForPage(UserMatchingRequestDto userMatchingRequestDto) {
@@ -170,7 +173,7 @@ public class UserServiceImpl implements UserService {
         Set<Hobby> hobbies = userMatchingRequestDto.getHobbies();
         Set<Integer> ageRanges = userMatchingRequestDto.getAgeRanges();
         Long userId = userMatchingRequestDto.getUserId();
-        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies,ageRanges, pageable);
+        Page<UserMatchingResponseDto> matchedUsers = userRepository.findUserEntitiesByByGenderAAndHobbiesExcludingSelf(userId, genders, hobbies, ageRanges, pageable);
 
         List<UserMatchingResponseDto> userMatchingResponseDtos = mapToUserMatchingResponseDto(matchedUsers.getContent());
         return new PageImpl<>(userMatchingResponseDtos, pageable, matchedUsers.getTotalElements());
@@ -184,7 +187,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoHobbiesResponseDTO getUserInfoHobbies(Long userId) {
         UserInfoResponseDTO userInfoResponse;
-        try  {
+        try {
             userInfoResponse = userRepository.getUserInfoById(userId);
         } catch (UserNotFoundException exception) {
             throw new UserNotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
@@ -199,6 +202,66 @@ public class UserServiceImpl implements UserService {
                 userInfoResponse.getGender(),
                 userInfoResponse.getChatRoomUrl(),
                 userHobbies);
+    }
+
+    @Transactional
+    @Override
+    public Long updateUser(Long userId, UserUpdateRequestDTO userUpdateRequestDTO, MultipartFile image) {
+        UserEntity userEntity = userRepository.findUserEntityById(userId);
+        UserEntity updateUserEntity;
+
+        String profileImageUrlOrigin = userEntity.getProfileImageUrl();
+
+        if (!image.getOriginalFilename().equals(profileImageUrlOrigin)) {
+            System.out.println("hihi");
+            // S3에서 삭제
+            String imageUrl = profileImageService.uploadProfileImage(image);
+            System.out.println(imageUrl);
+            this.updateProfileImage(userId, imageUrl);
+            System.out.println("userId: " + userId);
+            System.out.println(userRepository.findUserEntityById(userId).toString());
+            userEntity.setProfileImageUrl(imageUrl);
+            System.out.println(userRepository.findUserEntityById(userId).toString());
+        }
+
+        Set<HobbyEntity> hobbies = updateUserHobbies(userId, userUpdateRequestDTO.getHobbies());
+
+        // 생년월일 Date로 변환
+        LocalDate birthDate = convertToDate(userUpdateRequestDTO.getBirthDate());
+
+        // 나이 추출
+        int age = calculateAge(birthDate);
+        int ageRange = (age / 10) * 10;
+
+//        userEntity.setFirstName(userUpdateRequestDTO.getFirstName());
+//        userEntity.setBirthDate(birthDate);
+//        userEntity.setAge(age);
+//        userEntity.setAgeRange(ageRange);
+//        userEntity.setGender(userUpdateRequestDTO.getGender());
+//        userEntity.setChatRoomUrl(userUpdateRequestDTO.getChatRoomUrl());
+//        userEntity.setHobbies(hobbies);
+
+        userEntity.updateUser(userUpdateRequestDTO.getFirstName(), birthDate, age, ageRange, userUpdateRequestDTO.getGender(), userUpdateRequestDTO.getChatRoomUrl());
+        System.out.println(userRepository.findUserEntityById(userId).toString());
+
+//        updateUserEntity = new UserEntity(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword(), userUpdateRequestDTO.getFirstName(),
+//                birthDate, age, ageRange, userEntity.getProfileImageUrl(), userUpdateRequestDTO.getGender(), userUpdateRequestDTO.getChatRoomUrl(), userEntity.getEmail(), hobbies);
+
+        userRepository.save(userEntity);
+        return userEntity.getId();
+    }
+
+    private Set<HobbyEntity> updateUserHobbies(Long userId, Set<Hobby> hobbies) {
+        Set<HobbyEntity> hobbyEntities = new HashSet<>();
+        userHobbyRepository.deleteByUserId(userId);
+
+        for (Hobby hobbyName : hobbies) {
+            HobbyEntity hobby = hobbyRepository.findByHobbyName(hobbyName)
+                    .orElseGet(() -> hobbyRepository.save(new HobbyEntity(hobbyName)));
+            userHobbyRepository.save(new UserHobbyEntity(hobby.getId(), userId));
+            hobbyEntities.add(hobby);
+        }
+        return hobbyEntities;
     }
 
     private List<UserMatchingResponseDto> mapToUserMatchingResponseDto(List<UserMatchingResponseDto> userEntity) {

@@ -18,12 +18,13 @@ import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity,Long> {
+    UserEntity findUserEntityById(Long id);
     Optional<UserEntity> findUserEntityByUsername(String userName);
     Slice<UserEntity> findSliceByOrderByIdAsc(Pageable pageable);
     boolean existsByUsername(String username);
     Optional<UserEntity> findByEmail(String emil);
 
-    @Query("SELECT new com.hp1.friendmatchingapp.dto.UserMatchingResponseDto(u.id, u.firstName, u.age, u.gender, u.profileImageUrl)" +
+    @Query("SELECT DISTINCT new com.hp1.friendmatchingapp.dto.UserMatchingResponseDto(u.id, u.firstName, u.age, u.gender, u.profileImageUrl)" +
             "FROM UserEntity u " +
             "JOIN UserHobbyEntity uh ON u.id = uh.userId " +
             "JOIN HobbyEntity h ON uh.hobbyId = h.id " +
@@ -40,6 +41,5 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "FROM UserEntity u " +
             "WHERE u.id = :userId")
     UserInfoResponseDTO getUserInfoById(Long userId);
-
 
 }

@@ -82,7 +82,8 @@ public class ProfileImageServiceImpl implements ProfileImageService {
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
 
-    private void validateImageFileExtention(String filename) {
+    @Override
+    public void validateImageFileExtention(String filename) {
         int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex == -1) {
             throw new MissingFileExtensionException("The file is missing an extension. Please provide a valid file with an extension.", ErrorCode.MISSING_FILE_EXTENSION);
@@ -95,4 +96,5 @@ public class ProfileImageServiceImpl implements ProfileImageService {
             throw new InvalidFileExtension(ErrorCode.INVALID_FILE_EXTENSION.getMessage(), ErrorCode.INVALID_FILE_EXTENSION);
         }
     }
+
 }

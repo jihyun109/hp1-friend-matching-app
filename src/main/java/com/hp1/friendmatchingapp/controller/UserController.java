@@ -6,13 +6,16 @@ import com.hp1.friendmatchingapp.enums.Gender;
 import com.hp1.friendmatchingapp.enums.Hobby;
 import com.hp1.friendmatchingapp.jwt.JwtUtil;
 import com.hp1.friendmatchingapp.repository.UserRepository;
+import com.hp1.friendmatchingapp.service.ProfileImageService;
 import com.hp1.friendmatchingapp.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -24,6 +27,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final ProfileImageService profileImageService;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/users")
@@ -38,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponseDto login (@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
+    public LoginResponseDto login(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
         // 사용자 인증
         Long userId = userService.authenticateUser(loginRequestDTO);
 
@@ -58,7 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/emails/verifications")
-    public ResponseEntity<String> verificationEmail(@RequestParam("email")String email, @RequestParam("code") String code) {
+    public ResponseEntity<String> verificationEmail(@RequestParam("email") String email, @RequestParam("code") String code) {
         userService.verifiedCode(email, code);
 
         return ResponseEntity.ok("이메일 인증 완료");
@@ -71,21 +75,39 @@ public class UserController {
             @RequestParam Set<Hobby> hobbies,
             @RequestParam Set<Integer> ageRanges,
             @RequestParam(defaultValue = "0") int pageNumber) {
-        int pageSize = 12;
+        int pageSize = 6;
         UserMatchingRequestDto userMatchingRequestDto = new UserMatchingRequestDto(userId, gender, hobbies, ageRanges, pageNumber, pageSize);
 
         Page<UserMatchingResponseDto> matchedUsers = userService.getMatchedUsersForPage(userMatchingRequestDto);
         return ResponseEntity.ok(matchedUsers);
     }
 
-    @GetMapping("users/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<UserInfoHobbiesResponseDTO> getUserInfoById(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(userService.getUserInfoHobbies(userId));
     }
 
-    @PutMapping("/users/{userId}")
-    public ResponseEntity<String> updateUserInfo(@PathVariable("userId") Long userId) {
+    @PutMapping(value="/users/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateUserInfo(
+            @PathVariable("userId") Long userId,
+//                                                 @RequestPart("image") MultipartFile image,
+//                                                 @RequestPart("firstName") String firstName,
+//                                                 @RequestPart("birthDate") String birthDate,
+//                                                 @RequestPart("chatRoomUrl") String chatRoomUrl,
+//                                                 @RequestPart("gender") Gender gender,
+//                                                 @RequestPart("hobbies") Set<Hobby> hobbies
+            @ModelAttribute UserUpdateRequestDTO userUpdateRequestDTO,
+            @RequestPart(value = "image") MultipartFile image
+    ) {
+//        UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO(firstName, birthDate, gender, chatRoomUrl, hobbies);
+        userService.updateUser(userId, userUpdateRequestDTO, image);
+        return ResponseEntity.ok("유저 정보 수정 완료. id : ");
+    }
 
-        return ResponseEntity.ok("유저 정보 수정 완료");
+    @PutMapping("/users/{userId}/profile-image")
+    public ResponseEntity<String> editeProfileImage(@PathVariable("userId") Long userId, @RequestPart(value = "image") MultipartFile image) {
+        String uploadedUrl = profileImageService.uploadProfileImage(image);
+        userService.updateProfileImage(userId, uploadedUrl);
+        return ResponseEntity.ok("프로필 사진 수정 완료");
     }
 }
